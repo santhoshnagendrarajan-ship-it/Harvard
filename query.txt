@@ -1,0 +1,98 @@
+List all artifacts from the 11th century belonging to Byzantine culture.
+SELECT * FROM artifact_metadata
+WHERE century = '11th century' AND culture = 'Byzantine';
+
+-- What are the unique cultures represented in the artifacts?
+SELECT DISTINCT culture FROM artifact_metadata;
+
+-- List all artifacts from the Archaic Period
+SELECT * FROM artifact_metadata
+WHERE period like '%Archaic period%';
+
+-- List artifact titles ordered by accession year in descending order
+SELECT title FROM artifact_metadata
+ORDER BY accessionyear DESC;
+
+-- How many artifacts are there per department?
+SELECT department, COUNT(*) AS artifact_count
+FROM artifact_metadata
+GROUP BY department;
+
+
+
+-- Which artifacts have more than 3 images?
+SELECT * FROM artifact_media
+WHERE imagecount > 3;
+
+-- What is the average rank of all artifacts? check
+SELECT AVG('rank') AS average_rank FROM artifact_media;
+
+-- Which artifacts have a higher mediacount than colorcount?
+SELECT * FROM artifact_media
+WHERE mediacount > colorcount;
+
+-- List all artifacts created between 1500 and 1600.
+SELECT * FROM artifact_media
+WHERE datebegin >= 1500 AND dateend <= 1600;
+
+
+-- What are all the distinct hues used in the dataset?
+SELECT DISTINCT hue FROM artifact_colors;
+
+-- What are the top 5 most used colors by frequency?
+SELECT color, COUNT(*) AS frequency
+FROM artifact_colors
+GROUP BY color
+ORDER BY frequency DESC
+LIMIT 5;
+
+-- What is the average coverage percentage for each hue?
+SELECT hue, AVG(percent) AS avg_coverage
+FROM artifact_colors
+GROUP BY hue;
+
+-- List all colors used for a given artifact ID '140872'.
+SELECT color
+FROM artifact_colors
+WHERE objectid = '140872'; -- Replace <ARTIFACT_ID> with the desired ID
+
+-- What is the total number of color entries in the dataset?
+SELECT COUNT(*) AS total_color_entries FROM artifact_colors;
+
+-- How many artifacts have no media files?
+SELECT COUNT(*) AS no_media_count
+FROM artifact_metadata
+WHERE id NOT IN (SELECT objectid FROM artifact_media);
+
+
+-- List artifact titles and hues for all artifacts belonging to the Byzantine culture.
+SELECT m.title, c.hue
+FROM artifact_metadata m
+JOIN artifact_colors c ON m.id = c.objectid
+WHERE m.culture = 'Byzantine';
+
+-- List each artifact title with its associated hues.
+SELECT m.title, c.hue
+FROM artifact_metadata m
+JOIN artifact_colors c ON m.id = c.objectid;
+
+-- Get artifact titles, cultures, and media ranks where the period is not null.
+SELECT m.title, m.culture, a.rank
+FROM artifact_metadata m
+JOIN artifact_media a ON m.id = a.objectid
+WHERE m.period IS NOT NULL;
+
+-- Find artifact titles ranked in the top 10 that include the color hue "Grey".
+SELECT m.title
+FROM artifact_metadata m
+JOIN artifact_media a ON m.id = a.objectid
+JOIN artifact_colors c ON m.id = c.objectid
+WHERE c.hue = 'Grey'
+ORDER BY a.rank DESC
+LIMIT 10;
+
+-- How many artifacts exist per classification, and what is the average media count for each?
+SELECT m.classification, COUNT(*) AS artifact_count, AVG(a.mediacount) AS avg_media_count
+FROM artifact_metadata m
+JOIN artifact_media a ON m.id = a.objectid
+GROUP by m.classification
